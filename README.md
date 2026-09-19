@@ -1,5 +1,10 @@
 # 🌊 JALDRISHTI - AI-Powered River Monitoring & Water Safety Platform
 
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Online-emerald?style=for-the-badge&logo=github)](https://akkira716-bot.github.io/jaldrishti/)
+[![GitHub Repo](https://img.shields.io/badge/GitHub-Repository-blue?style=for-the-badge&logo=github)](https://github.com/akkira716-bot/jaldrishti)
+
+🔗 **Live Public Demo**: [https://akkira716-bot.github.io/jaldrishti/](https://akkira716-bot.github.io/jaldrishti/)
+
 **JALDRISHTI** (जलदृष्टि) is a responsive, modern web application designed for real-time river condition monitoring, early pollution anomaly detection, automated multi-level alerts, and water safety analytics.
 
 Developed with a clean water-themed ocean-and-emerald design system, it provides environmental officers, river basin authorities, and community monitors with immediate visibility into aquatic ecosystems.
