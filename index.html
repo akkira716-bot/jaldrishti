@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JALDRISHTI - AI-Powered River Monitoring & Water Safety Platform</title>
+  <meta name="description" content="Real-time river condition monitoring, AI-powered pollution detection, early flood alerts, and comprehensive water quality analytics.">
+
+  <!-- Leaflet CSS for Geospatial River Basin Mapping -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- App Stylesheets -->
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/views.css">
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="app-sidebar">
+      <div class="brand-header">
+        <div class="brand-logo-icon">
+          <!-- Flowing river drop icon -->
+          <svg viewBox="0 0 24 24">
+            <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <h1>JALDRISHTI</h1>
+          <div class="brand-subtitle">AI River Safety</div>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-title">Core Operations</div>
+
+        <a href="#dashboard" class="nav-item active" data-view="dashboard" id="nav-dashboard">
+          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
+          <span>Dashboard</span>
+        </a>
+
+        <a href="#monitoring" class="nav-item" data-view="monitoring" id="nav-monitoring">
+          <svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+          <span>River Monitoring</span>
+        </a>
+
+        <a href="#ai-detection" class="nav-item" data-view="ai-detection" id="nav-ai-detection">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/></svg>
+          <span>AI Vision Scanner</span>
+        </a>
+
+        <a href="#alerts" class="nav-item" data-view="alerts" id="nav-alerts">
+          <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <span>Alerts</span>
+          <span class="nav-badge" id="nav-alerts-badge">2</span>
+        </a>
+
+        <div class="nav-section-title">Geospatial & Insights</div>
+
+        <a href="#map" class="nav-item" data-view="map" id="nav-map">
+          <svg viewBox="0 0 24 24"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+          <span>River Basin Map</span>
+        </a>
+
+        <a href="#reports" class="nav-item" data-view="reports" id="nav-reports">
+          <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          <span>Reports & Trends</span>
+        </a>
+
+        <a href="#settings" class="nav-item" data-view="settings" id="nav-settings">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          <span>Profile / Settings</span>
+        </a>
+      </nav>
+
+      <!-- Sidebar Footer / User Profile & Auth Trigger -->
+      <div class="sidebar-footer">
+        <div class="user-quick-profile" id="open-auth-btn" title="Click to Switch Account or Login">
+          <div class="user-avatar">AA</div>
+          <div class="user-info">
+            <div class="user-name">Anandhan Akkira</div>
+            <div class="user-role">River Basin Officer</div>
+          </div>
+          <button class="btn-icon" style="width:28px; height:28px;" title="Account / Sign In">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Mobile Drawer Backdrop -->
+    <div class="sidebar-backdrop"></div>
+
+    <!-- Main Wrapper -->
+    <div class="main-wrapper">
+      
+      <!-- Top Sticky App Header -->
+      <header class="top-header">
+        <div class="header-left">
+          <button class="mobile-menu-toggle" id="mobile-menu-toggle-btn" aria-label="Toggle navigation menu">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/>
+            </svg>
+          </button>
+
+          <div class="page-title-box">
+            <h2 id="current-page-title">Water Safety Command Dashboard</h2>
+          </div>
+
+          <div class="live-telemetry-indicator" title="Continuous Real-Time Telemetry Feed">
+            <span class="pulsing-dot"></span>
+            <span>LIVE SENSORS</span>
+          </div>
+        </div>
+
+        <div class="header-right">
+          <!-- Station Quick Selector -->
+          <div class="station-selector-wrapper">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+            </svg>
+            <select class="station-dropdown" id="header-station-select" aria-label="Select Monitoring Station">
+              <!-- Dynamically populated from data.js -->
+            </select>
+          </div>
+
+          <!-- Quick Scan Button -->
+          <button class="btn btn-primary btn-sm" onclick="window.JalApp.navigate('ai-detection')" id="btn-quick-scan">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="3"/><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/>
+            </svg>
+            <span>Scan River</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Main Scrollable Content Area -->
+      <main class="content-area">
+
+        <!-- ==========================================
+             VIEW 1: DASHBOARD
+             ========================================== -->
+        <section class="view-container active" id="view-dashboard">
+          <div class="dashboard-grid">
+            
+            <!-- Hero Telemetry Row: WQI Gauge & Basin Summary -->
+            <div class="hero-telemetry-banner">
+              <!-- WQI Radial Dial -->
+              <div class="card hero-wqi-card">
+                <div class="dial-container">
+                  <svg class="dial-svg" viewBox="0 0 180 180">
+                    <circle class="dial-bg-circle" cx="90" cy="90" r="78"/>
+                    <circle class="dial-progress-circle" id="dash-wqi-circle" cx="90" cy="90" r="78" stroke-dashoffset="150"/>
+                  </svg>
+                  <div class="dial-inner-content">
+                    <span class="dial-score" id="dash-wqi-score">42</span>
+                    <span class="dial-label">Water Quality Index</span>
+                  </div>
+                </div>
+                <div class="wqi-status-pill badge-danger" id="dash-wqi-pill">Poor Quality</div>
+              </div>
+
+              <!-- Station Highlights & Risk -->
+              <div class="card hero-summary-card">
+                <div>
+                  <div class="station-meta-header">
+                    <div>
+                      <h3 class="station-title" id="dash-station-name">Yamuna - Okhla Barrage</h3>
+                      <div class="station-meta-tags">
+                        <span id="dash-station-location" style="color:var(--text-secondary); font-size:0.85rem;">Yamuna River • Delhi NCR</span>
+                        <span class="badge badge-info">Sub-Basin Zone 4</span>
+                      </div>
+                    </div>
+                    <div id="dash-risk-badge" class="risk-level-badge badge-danger">
+                      <span class="pulsing-dot" style="background:#ef4444"></span> Risk: High (Critical)
+                    </div>
+                  </div>
+
+                  <div style="margin-top: 1.25rem; display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
+                    <div class="card" style="padding: 0.85rem; background: rgba(7, 19, 30, 0.45);">
+                      <div style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase;">Sensor Status</div>
+                      <div style="font-size: 1.1rem; font-weight: 700; color: var(--status-safe); display: flex; align-items: center; gap: 0.35rem;">
+                        <span class="pulsing-dot" style="width:6px; height:6px;"></span> Active (2m ago)
+                      </div>
+                    </div>
+                    <div class="card" style="padding: 0.85rem; background: rgba(7, 19, 30, 0.45);">
+                      <div style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase;">Discharge Flow</div>
+                      <div style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary);">312 m³/s</div>
+                    </div>
+                    <div class="card" style="padding: 0.85rem; background: rgba(7, 19, 30, 0.45);">
+                      <div style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase;">Early Warning</div>
+                      <div style="font-size: 1.1rem; font-weight: 700; color: var(--status-danger);">Level 2 Advisory</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div style="margin-top: 1.25rem; display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                  <button class="btn btn-primary btn-sm" onclick="window.JalApp.navigate('ai-detection')">
+                    Run AI Pollution Check
+                  </button>
+                  <button class="btn btn-secondary btn-sm" onclick="window.JalApp.navigate('map')">
+                    Inspect on Geospatial Map
+                  </button>
+                  <button class="btn btn-secondary btn-sm" onclick="window.JalApp.navigate('reports')">
+                    Historical Log
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Key Sensor Quad Grid -->
+            <div class="metrics-quad-grid">
+              <!-- Water Level -->
+              <div class="metric-card" id="metric-water-level">
+                <div class="metric-header">
+                  <span class="metric-title">Water Level</span>
+                  <div class="metric-icon-wrap">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                  </div>
+                </div>
+                <div class="metric-value-row">
+                  <span class="metric-value">204.85</span>
+                  <span class="metric-unit">m</span>
+                </div>
+                <div class="metric-footer">
+                  <span class="metric-trend trend-up">▲ Rising +0.12m/h</span>
+                  <span class="metric-note" style="color:var(--text-muted);">Threshold: 205.33m</span>
+                </div>
+              </div>
+
+              <!-- Temperature -->
+              <div class="metric-card" id="metric-temp">
+                <div class="metric-header">
+                  <span class="metric-title">Water Temp</span>
+                  <div class="metric-icon-wrap">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/></svg>
+                  </div>
+                </div>
+                <div class="metric-value-row">
+                  <span class="metric-value">27.4</span>
+                  <span class="metric-unit">°C</span>
+                </div>
+                <div class="metric-footer">
+                  <span class="metric-trend trend-stable">● Stable</span>
+                  <span class="metric-note" style="color:var(--text-muted);">Seasonal: 26.0°C</span>
+                </div>
+              </div>
+
+              <!-- pH -->
+              <div class="metric-card" id="metric-ph">
+                <div class="metric-header">
+                  <span class="metric-title">pH Level</span>
+                  <div class="metric-icon-wrap">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/></svg>
+                  </div>
+                </div>
+                <div class="metric-value-row">
+                  <span class="metric-value">8.4</span>
+                  <span class="metric-unit">pH</span>
+                </div>
+                <div class="metric-footer">
+                  <span class="metric-trend trend-up" style="color:var(--status-warning)">▲ Alkaline Peak</span>
+                  <span class="metric-note" style="color:var(--text-muted);">Safe: 6.5 - 8.5</span>
+                </div>
+              </div>
+
+              <!-- Turbidity -->
+              <div class="metric-card" id="metric-turbidity">
+                <div class="metric-header">
+                  <span class="metric-title">Turbidity</span>
+                  <div class="metric-icon-wrap">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12h20"/><path d="M20 12v8H4v-8"/><path d="M4 8l8-4 8 4"/></svg>
+                  </div>
+                </div>
+                <div class="metric-value-row">
+                  <span class="metric-value">52</span>
+                  <span class="metric-unit">NTU</span>
+                </div>
+                <div class="metric-footer">
+                  <span class="metric-trend trend-up">▲ High Turbidity</span>
+                  <span class="metric-note" style="color:var(--text-muted);">CPCB Std: &lt; 10 NTU</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Charts & Activity Row -->
+            <div class="charts-activity-row">
+              <!-- Interactive 24-Hour Trend Chart -->
+              <div class="card chart-container-box">
+                <div class="card-header">
+                  <div>
+                    <h4 class="card-title">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                      24-Hour Telemetry Trends
+                    </h4>
+                    <div class="card-subtitle">Real-time sensor telemetry sampled at 3-hour intervals</div>
+                  </div>
+                  <div class="chart-tabs-header">
+                    <button class="chart-tab-btn active" data-metric="turbidity">Turbidity</button>
+                    <button class="chart-tab-btn" data-metric="pH">pH</button>
+                    <button class="chart-tab-btn" data-metric="waterLevel">Level</button>
+                    <button class="chart-tab-btn" data-metric="dissolvedOxygen">Dissolved O₂</button>
+                  </div>
+                </div>
+
+                <div class="svg-chart-wrapper" id="dash-svg-chart">
+                  <!-- Rendered dynamically by dashboard.js -->
+                </div>
+              </div>
+
+              <!-- Recent High Priority Alerts -->
+              <div class="card">
+                <div class="card-header">
+                  <h4 class="card-title">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                    Recent Alerts
+                  </h4>
+                  <button class="btn btn-secondary btn-sm" onclick="window.JalApp.navigate('alerts')">View All</button>
+                </div>
+                <div class="recent-alerts-list" id="dash-recent-alerts-list">
+                  <!-- Rendered dynamically by dashboard.js -->
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- ==========================================
+             VIEW 2: RIVER MONITORING
+             ========================================== -->
+        <section class="view-container" id="view-monitoring">
+          <!-- Simulation Status Header -->
+          <div class="live-simulation-banner">
+            <div style="display:flex; align-items:center; gap:0.75rem;">
+              <div class="pulsing-dot" style="width:10px; height:10px; background:var(--status-safe);"></div>
+              <div>
+                <strong style="color:var(--text-primary); font-size:0.95rem;">Automated Telemetry Stream Active</strong>
+                <div style="font-size:0.78rem; color:var(--text-secondary);">6 telemetry stream gauges reporting continuous physical & chemical water metrics</div>
+              </div>
+            </div>
+            <button class="btn btn-primary btn-sm" id="toggle-live-sim">Pause Live Telemetry</button>
+          </div>
+
+          <!-- Filter & Search Bar -->
+          <div class="monitoring-header-controls">
+            <div style="position:relative; max-width:360px; width:100%;">
+              <input type="text" id="monitoring-search" class="form-control" placeholder="Search station, river, or state..." style="padding-left:2.4rem;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="position:absolute; left:0.85rem; top:50%; transform:translateY(-50%); color:var(--text-muted);">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              </svg>
+            </div>
+            <div style="font-size:0.85rem; color:var(--text-secondary);">
+              Click any station to select and inspect its stream parameters.
+            </div>
+          </div>
+
+          <!-- Multi-Station Comparison Matrix -->
+          <div class="stations-matrix-grid" id="monitoring-stations-grid">
+            <!-- Rendered dynamically by monitoring.js -->
+          </div>
+        </section>
+
+        <!-- ==========================================
+             VIEW 3: AI POLLUTION DETECTION
+             ========================================== -->
+        <section class="view-container" id="view-ai-detection">
+          <div class="ai-detection-layout">
+            
+            <!-- Left Column: Image Uploader & Presets -->
+            <div class="ai-upload-panel">
+              <!-- Upload Dropzone -->
+              <div class="upload-dropzone" id="ai-dropzone">
+                <input type="file" id="ai-file-input" accept="image/*" style="display:none;">
+                <div class="upload-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+                  </svg>
+                </div>
+                <div>
+                  <h4 style="font-size:1.05rem; font-weight:700; color:var(--text-primary); margin-bottom:0.25rem;">
+                    Upload River Imagery for AI Inspection
+                  </h4>
+                  <p style="font-size:0.82rem; color:var(--text-secondary);">
+                    Drag and drop water surface photo or <span style="color:var(--accent-cyan); text-decoration:underline;">browse files</span> (JPG, PNG)
+                  </p>
+                </div>
+              </div>
+
+              <!-- Quick-Load Demo River Presets -->
+              <div>
+                <div style="font-size:0.8rem; font-weight:700; text-transform:uppercase; color:var(--text-muted); margin-bottom:0.6rem;">
+                  Or Select a River Sample Preset:
+                </div>
+                <div class="sample-presets-grid">
+                  <div class="sample-preset-card active" data-preset="plastic" title="Click to test Plastic Debris">
+                    <img src="assets/images/plastic_debris.jpg" alt="Plastic Debris">
+                    <div class="preset-caption">Plastic Debris</div>
+                  </div>
+                  <div class="sample-preset-card" data-preset="chemical" title="Click to test Chemical Effluent">
+                    <img src="assets/images/chemical_effluent.jpg" alt="Chemical Effluent">
+                    <div class="preset-caption">Chemical Effluent</div>
+                  </div>
+                  <div class="sample-preset-card" data-preset="algae" title="Click to test Algae Bloom">
+                    <img src="assets/images/algae_bloom.jpg" alt="Algae Bloom">
+                    <div class="preset-caption">Algae Bloom</div>
+                  </div>
+                  <div class="sample-preset-card" data-preset="pristine" title="Click to test Clean River">
+                    <img src="assets/images/pristine_river.jpg" alt="Clean River">
+                    <div class="preset-caption">Pristine Flow</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Demo Logic Disclaimer -->
+              <div class="demo-disclaimer-box">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;">
+                  <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+                <div>
+                  <strong>DEMO AI ENGINE:</strong> Current visual detections use simulated computer vision heuristics and sample models for preview. Live edge-deployed neural network models will link via REST API in production.
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Column: Visual Scanner & Classification Results -->
+            <div class="ai-results-card">
+              <!-- Scanner Viewport with Overlay Canvas -->
+              <div class="scanner-viewport">
+                <div class="radar-sweep-line" id="radar-sweep-line"></div>
+                <img id="scanner-preview-img" class="scanner-image" src="assets/images/plastic_debris.jpg" alt="River Scanner Preview">
+                <canvas id="detection-canvas" class="detection-canvas"></canvas>
+              </div>
+
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span id="scan-status-text" style="font-size:0.8rem; color:var(--text-muted);">
+                  Ready for analysis
+                </span>
+                <button class="btn btn-primary" id="trigger-scan-btn">
+                  Analyze Surface with AI
+                </button>
+              </div>
+
+              <!-- Diagnostic Output Card -->
+              <div class="card" id="ai-results-panel" style="padding:1.25rem;">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1rem; border-bottom:1px solid var(--border-subtle); padding-bottom:0.75rem;">
+                  <div>
+                    <div style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; font-weight:700;">Identified Anomaly</div>
+                    <h3 id="ai-pollution-type" style="font-size:1.15rem; color:var(--text-primary); margin-top:0.2rem;">
+                      Solid Waste & Plastic Debris
+                    </h3>
+                  </div>
+                  <span id="ai-severity-badge" class="badge badge-danger">High Severity</span>
+                </div>
+
+                <!-- Confidence Meter -->
+                <div class="confidence-meter-box">
+                  <div style="display:flex; justify-content:space-between; font-size:0.82rem;">
+                    <span style="color:var(--text-secondary); font-weight:600;">Neural Confidence Score</span>
+                    <strong id="ai-confidence-val" style="color:var(--accent-cyan);">94.6%</strong>
+                  </div>
+                  <div class="progress-bar-container">
+                    <div class="progress-bar-fill" id="ai-confidence-bar" style="width: 94.6%;"></div>
+                  </div>
+                </div>
+
+                <!-- Actionable Recommendations -->
+                <div class="recommendation-box" style="margin-top:1rem;">
+                  <div class="recommendation-title">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    </svg>
+                    Recommended Mitigation Action:
+                  </div>
+                  <ul id="ai-recommendations-list" style="list-style:none; padding:0; margin:0;">
+                    <!-- Rendered dynamically -->
+                  </ul>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        </section>
+
+        <!-- ==========================================
+             VIEW 4: ALERTS
+             ========================================== -->
+        <section class="view-container" id="view-alerts">
+          <div class="alerts-filter-bar">
+            <div class="filter-pills-group">
+              <button class="filter-pill-btn active" data-filter="all">All Incidents</button>
+              <button class="filter-pill-btn" data-filter="critical">Critical</button>
+              <button class="filter-pill-btn" data-filter="warning">Warnings</button>
+              <button class="filter-pill-btn" data-filter="unack">Pending Action</button>
+            </div>
+            <button class="btn btn-secondary btn-sm" id="btn-ack-all">
+              Mark All as Acknowledged
+            </button>
+          </div>
+
+          <div class="alert-feed-list" id="alerts-feed-container">
+            <!-- Rendered dynamically by alerts.js -->
+          </div>
+        </section>
+
+        <!-- ==========================================
+             VIEW 5: INTERACTIVE MAP
+             ========================================== -->
+        <section class="view-container" id="view-map">
+          <div class="map-view-layout">
+            <!-- Leaflet Geospatial Viewport -->
+            <div class="map-viewport-container">
+              <div id="river-map"></div>
+            </div>
+
+            <!-- Side Station Details & Quick List -->
+            <div class="map-side-details-panel">
+              <div id="map-focused-station-details">
+                <!-- Shows selected station card or placeholder -->
+                <div class="card" style="text-align:center; padding:1.5rem; color:var(--text-muted);">
+                  <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom:0.5rem; opacity:0.6;">
+                    <circle cx="12" cy="12" r="10"/><polygon points="12 8 8 12 12 16 12 8"/>
+                  </svg>
+                  <p style="font-size:0.85rem;">Click any station pin on the map or select from the list below to inspect telemetry.</p>
+                </div>
+              </div>
+
+              <div style="font-size:0.8rem; font-weight:700; text-transform:uppercase; color:var(--text-muted); margin-top:0.5rem;">
+                Monitoring Stations
+              </div>
+              <div id="map-stations-list" style="display:flex; flex-direction:column; gap:0.75rem;">
+                <!-- Rendered dynamically by map.js -->
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==========================================
+             VIEW 6: REPORTS & TRENDS
+             ========================================== -->
+        <section class="view-container" id="view-reports">
+          <!-- Query & Filter Bar -->
+          <div class="card reports-query-bar">
+            <div>
+              <label class="form-label">River Station</label>
+              <select id="report-station-filter" class="form-control">
+                <option value="all">All River Stations</option>
+                <option value="Yamuna">Yamuna River</option>
+                <option value="Ganga">Ganga River</option>
+                <option value="Brahmaputra">Brahmaputra River</option>
+                <option value="Godavari">Godavari River</option>
+                <option value="Narmada">Narmada River</option>
+                <option value="Kaveri">Kaveri River</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="form-label">Time Horizon</label>
+              <select id="report-date-filter" class="form-control">
+                <option value="all">Last 7 Days (Comprehensive)</option>
+                <option value="24h">Last 24 Hours</option>
+                <option value="30d">Last 30 Days</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="form-label">Report Actions</label>
+              <button class="btn btn-primary" id="btn-generate-report-modal" style="width:100%;">
+                Generate Summary
+              </button>
+            </div>
+
+            <div style="display:flex; gap:0.5rem;">
+              <button class="btn btn-secondary" id="btn-export-csv" title="Export as CSV spreadsheet">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                CSV
+              </button>
+              <button class="btn btn-secondary" id="btn-print-report" title="Print or save as PDF">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                Print
+              </button>
+            </div>
+          </div>
+
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+            <span id="reports-record-count" style="font-size:0.85rem; color:var(--text-secondary); font-weight:600;">Showing historical logs</span>
+            <span style="font-size:0.78rem; color:var(--text-muted);">CPCB & WHO Environmental Compliance Standards</span>
+          </div>
+
+          <!-- Data Table -->
+          <div class="data-table-wrapper">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Timestamp</th>
+                  <th>Station</th>
+                  <th>River</th>
+                  <th>WQI</th>
+                  <th>pH</th>
+                  <th>Turbidity</th>
+                  <th>Dissolved O₂</th>
+                  <th>Compliance Status</th>
+                </tr>
+              </thead>
+              <tbody id="reports-table-body">
+                <!-- Rendered dynamically by reports.js -->
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ==========================================
+             VIEW 7: PROFILE & SETTINGS
+             ========================================== -->
+        <section class="view-container" id="view-settings">
+          <div class="settings-grid">
+            
+            <!-- Left: Profile Info Card -->
+            <div class="card profile-card">
+              <div class="profile-avatar-large">AA</div>
+              <div>
+                <h3 class="user-name" style="font-size:1.3rem;">Anandhan Akkira</h3>
+                <div class="user-role" style="font-size:0.85rem; color:var(--accent-cyan); font-weight:600;">
+                  River Basin Surveillance Officer
+                </div>
+                <div style="font-size:0.78rem; color:var(--text-muted); margin-top:0.25rem;">
+                  ID: IN-CPCB-2026-884
+                </div>
+              </div>
+
+              <div style="width:100%; border-top:1px solid var(--border-subtle); padding-top:1rem; text-align:left; font-size:0.85rem;">
+                <div style="margin-bottom:0.6rem;">
+                  <span style="color:var(--text-muted);">Department:</span><br>
+                  <strong>Central Water Quality Directorate</strong>
+                </div>
+                <div style="margin-bottom:0.6rem;">
+                  <span style="color:var(--text-muted);">Assigned Region:</span><br>
+                  <strong>National Capital & Northern Basin</strong>
+                </div>
+                <div>
+                  <span style="color:var(--text-muted);">Access Clearance:</span><br>
+                  <span class="badge badge-safe">Level 3 (Command)</span>
+                </div>
+              </div>
+
+              <button class="btn btn-secondary btn-sm" style="width:100%;" onclick="document.getElementById('auth-modal').classList.add('active')">
+                Switch User / Re-authenticate
+              </button>
+            </div>
+
+            <!-- Right: Configurable Thresholds & Platform Preferences -->
+            <div style="display:flex; flex-direction:column; gap:1.5rem;">
+              
+              <!-- Safety Threshold Limits -->
+              <div class="card">
+                <div class="card-header">
+                  <h4 class="card-title">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 14 14"/></svg>
+                    Safety Alert Threshold Limits
+                  </h4>
+                </div>
+                <form id="threshold-settings-form">
+                  <div class="threshold-slider-group">
+                    <div style="display:flex; justify-content:space-between; font-size:0.85rem;">
+                      <span style="color:var(--text-secondary);">Maximum Acceptable pH:</span>
+                      <strong id="threshold-ph-val" style="color:var(--accent-cyan);">8.5</strong>
+                    </div>
+                    <input type="range" id="setting-threshold-ph" min="7.0" max="9.5" step="0.1" value="8.5">
+                  </div>
+
+                  <div class="threshold-slider-group">
+                    <div style="display:flex; justify-content:space-between; font-size:0.85rem;">
+                      <span style="color:var(--text-secondary);">Turbidity Alert Limit:</span>
+                      <strong id="threshold-turb-val" style="color:var(--accent-cyan);">40 NTU</strong>
+                    </div>
+                    <input type="range" id="setting-threshold-turb" min="10" max="100" step="5" value="40">
+                  </div>
+
+                  <div style="display:flex; justify-content:flex-end; margin-top:1rem;">
+                    <button type="submit" class="btn btn-primary btn-sm">Update Alarm Thresholds</button>
+                  </div>
+                </form>
+              </div>
+
+              <!-- Appearance & Interface -->
+              <div class="card">
+                <div class="card-header">
+                  <h4 class="card-title">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/></svg>
+                    Interface Appearance
+                  </h4>
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.25rem;">
+                  <div>
+                    <label class="form-label">Color Theme</label>
+                    <select id="setting-theme-select" class="form-control">
+                      <option value="dark">Deep Ocean Dark (Default)</option>
+                      <option value="light">Aqua Coastal Light</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="form-label">Alert Audio Chime</label>
+                    <select class="form-control">
+                      <option value="enabled">Enabled for Critical Alarms</option>
+                      <option value="disabled">Mute Audio</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Emergency Response Contacts -->
+              <div class="card">
+                <div class="card-header">
+                  <h4 class="card-title">Emergency Response Contacts</h4>
+                </div>
+                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; font-size:0.85rem;">
+                  <div style="background:rgba(7,19,30,0.5); padding:0.85rem; border-radius:var(--radius-md);">
+                    <div style="color:var(--accent-cyan); font-weight:700;">CPCB Emergency Hotline</div>
+                    <div style="color:var(--text-primary); font-size:1.05rem; font-weight:700;">1800-11-7788</div>
+                  </div>
+                  <div style="background:rgba(7,19,30,0.5); padding:0.85rem; border-radius:var(--radius-md);">
+                    <div style="color:var(--accent-cyan); font-weight:700;">Disaster Response (NDRF)</div>
+                    <div style="color:var(--text-primary); font-size:1.05rem; font-weight:700;">1078</div>
+                  </div>
+                  <div style="background:rgba(7,19,30,0.5); padding:0.85rem; border-radius:var(--radius-md);">
+                    <div style="color:var(--accent-cyan); font-weight:700;">River Basin Technical Desk</div>
+                    <div style="color:var(--text-primary); font-size:1.05rem; font-weight:700;">ops@jaldrishti.gov.in</div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        </section>
+
+      </main>
+
+      <!-- Mobile Bottom Navigation Bar -->
+      <nav class="mobile-bottom-nav">
+        <button class="mobile-nav-btn active" data-view="dashboard">
+          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
+          <span>Dashboard</span>
+        </button>
+        <button class="mobile-nav-btn" data-view="monitoring">
+          <svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+          <span>Telemetry</span>
+        </button>
+        <button class="mobile-nav-btn" data-view="ai-detection">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/></svg>
+          <span>AI Scan</span>
+        </button>
+        <button class="mobile-nav-btn" data-view="alerts">
+          <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <span>Alerts</span>
+        </button>
+        <button class="mobile-nav-btn" data-view="map">
+          <svg viewBox="0 0 24 24"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/></svg>
+          <span>Map</span>
+        </button>
+      </nav>
+
+    </div>
+  </div>
+
+  <!-- Authentication Modal (Login / Register / Guest Demo) -->
+  <div class="modal-overlay" id="auth-modal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 style="font-size:1.2rem; color:var(--text-primary);">JALDRISHTI Authentication</h3>
+        <button class="modal-close-btn" id="close-auth-modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="auth-tabs-header">
+          <div class="auth-tab-btn active" id="tab-btn-login">Sign In</div>
+          <div class="auth-tab-btn" id="tab-btn-register">Register Platform Access</div>
+        </div>
+
+        <!-- Login Form -->
+        <form id="form-login">
+          <div class="form-group">
+            <label class="form-label">Email / Government ID</label>
+            <input type="email" class="form-control" value="anandhan.akkira@jaldrishti.gov.in" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Access Passcode</label>
+            <input type="password" class="form-control" value="••••••••••••" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Assigned Role</label>
+            <select class="form-control">
+              <option>River Basin Surveillance Officer</option>
+              <option>Environmental Research Scientist</option>
+              <option>Citizen Monitor / Community Watch</option>
+            </select>
+          </div>
+          <button type="submit" class="btn btn-primary" style="width:100%; margin-top:0.5rem;">
+            Sign In to Platform
+          </button>
+        </form>
+
+        <!-- Register Form -->
+        <form id="form-register" style="display:none;">
+          <div class="form-group">
+            <label class="form-label">Full Name</label>
+            <input type="text" class="form-control" placeholder="e.g. Dr. Priya Sharma" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Official Email</label>
+            <input type="email" class="form-control" placeholder="officer@state-pcb.gov.in" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Department / Jurisdiction</label>
+            <input type="text" class="form-control" placeholder="State Pollution Control Board" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">New Password</label>
+            <input type="password" class="form-control" placeholder="Create secure password" required>
+          </div>
+          <button type="submit" class="btn btn-primary" style="width:100%; margin-top:0.5rem;">
+            Create Official Account
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Executive Summary Report Modal -->
+  <div class="modal-overlay" id="report-exec-modal">
+    <div class="modal-box" style="max-width:640px;">
+      <div class="modal-header">
+        <h3 style="font-size:1.15rem; color:var(--text-primary);">Executive Water Quality Summary</h3>
+        <button class="modal-close-btn" onclick="document.getElementById('report-exec-modal').classList.remove('active')">&times;</button>
+      </div>
+      <div class="modal-body" id="report-modal-content">
+        <!-- Rendered dynamically by reports.js -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Global Toast Notification Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+  <!-- Application Logic Modules -->
+  <script src="js/data.js"></script>
+  <script src="js/dashboard.js"></script>
+  <script src="js/monitoring.js"></script>
+  <script src="js/ai-detection.js"></script>
+  <script src="js/alerts.js"></script>
+  <script src="js/map.js"></script>
+  <script src="js/reports.js"></script>
+  <script src="js/settings.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
